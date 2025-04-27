@@ -1,0 +1,43 @@
+{% extends "staff/base.html" %}
+
+{% block title %}
+  Register
+{% endblock %}
+
+{% block body %}
+ <div>
+        <h2>Регистрация</h2>
+
+        {% if form.errors %}
+            <div>
+                <strong>Ошибка!</strong> Пожалуйста, проверьте введенные данные.
+            </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'register' %}">
+            {% csrf_token %}
+            <div>
+                <label for="first_name">Имя:</label>
+                <input type="text" id="first_name" name="first_name" required>
+            </div>
+            <div>
+                <label for="last_name">Фамилия:</label>
+                <input type="text" id="last_name" name="last_name" required>
+            </div>
+            <div>
+                <label for="username">Никнейм:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div>
+                <label for="password">Пароль:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit">Зарегистрироваться</button>
+        </form>
+        <p>Уже есть аккаунт? <a href="{% url 'login' %}">Войти</a></p>
+     <br>
+        <p><a href="{% url 'tasks' %}">Список задач</a></p>
+    </div>
+
+
+{% endblock %}

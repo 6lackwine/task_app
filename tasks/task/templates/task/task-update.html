@@ -1,0 +1,42 @@
+{% extends "task/base.html" %}
+
+
+{% block title %}
+  Tasks List
+{% endblock %}
+
+{% block body %}
+
+<h1>Редактировать задачу</h1>
+{% if task %}
+<form action="{% url 'task-update' task.id %}" method="post">
+    {% csrf_token %}
+    <input type="text" name="title" value="{{ task.title }}" placeholder="Название" required>
+    <select name="executor" required>
+        <option value="">Выберите исполнителя</option>
+        {% for staff in staff_list %}
+            <option value="{{ staff.id }}">{{ staff.firstname }} {{ staff.surname }}</option>
+        {% endfor %}
+    </select>
+    <input type="text" name="period" value="{{ task.period|date:'Y-m-d H:i:s' }}" placeholder="Срок выполнения"
+           title="Введите дату в формате YYYY-MM-DD HH:MM:SS" pattern="\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}" required>
+    <select name="status">
+        <option value="Свободная задача" {% if task.status == 'Свободная задача' %}selected{% endif %}>Свободная задача</option>
+        <option value="Завершено" {% if task.status == 'Завершено' %}selected{% endif %}>Завершено</option>
+        <option value="Выполняется" {% if task.status == 'Выполняется' %}selected{% endif %}>Выполняется</option>
+    </select>
+    <select name="parent">
+        <option value="">Выберите родительскую задачу</option>
+        {% for task in tasks %}
+            <option value="{{ task.id }}">{{ task.title }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit">Сохранить изменения</button>
+</form>
+{% else %}
+    <p>Задача не найдена.</p>
+{% endif %}
+
+<p><a href="{% url 'tasks' %}">Список задач</a></p>
+
+{% endblock %}

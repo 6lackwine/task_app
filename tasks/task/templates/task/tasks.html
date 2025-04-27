@@ -1,0 +1,82 @@
+{% extends "task/base.html" %}
+
+
+{% block title %}
+  Tasks List
+{% endblock %}
+
+{% block body %}
+<br>
+        <p><a href="{% url 'login' %}">Войти</a>  <a href="{% url 'register' %}">Регистрация</a>  <a href="{% url 'logout' %}">Выход</a></p>
+<h1>Список Задач</h1>
+<!-- Форма для добавления новой задачи -->
+<form action="{% url 'task-create' %}" method="post">
+    {% csrf_token %}
+    <input type="text" name="title" placeholder="Название" required>
+    <select name="executor" required>
+        <option value="">Выберите исполнителя</option>
+        {% for staff in staff_list %}
+            <option value="{{ staff.id }}">{{ staff.firstname }} {{ staff.surname }}</option>
+        {% endfor %}
+    </select>
+    <input type="text" name="period" placeholder="Срок выполнения"
+           title="Введите дату в формате YYYY-MM-DD HH:MM:SS"
+           pattern="\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}" required>
+    <select name="status">
+        <option value="Свободная задача">Свободная задача</option>
+        <option value="Завершено">Завершено</option>
+        <option value="Выполняется">Выполняется</option>
+    </select>
+    <select name="parent">
+        <option value="">Выберите родительскую задачу</option>
+        {% for task in tasks %}
+            <option value="{{ task.id }}">{{ task.title }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit">Добавить задачу</button>
+</form>
+
+    {% if tasks %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Название</th>
+                    <th>Исполнитель</th>
+                    <th>Срок выполнения</th>
+                    <th> </th>
+                    <th>Статус</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks %}
+                    <tr>
+                        <td>{{ task.id }}</td>
+                        <td>{{ task.title }}</td>
+                        <td>{{ task.executor.firstname }} {{ task.executor.surname }}</td>
+                        <td>{{ task.period|date:"Y-m-d H:i:s" }}</td>
+                        <td> </td>
+                        <td>{{ task.status }}</td>
+                        <td>
+                            <a href="{% url 'task-update' task.id %}">Редактировать</a>
+                            <form method="POST" action="{% url 'task-delete' task.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="_method" value="DELETE">
+                                <input type="submit" value="Удалить" onclick="return confirm('Вы уверены, что хотите удалить эту задачу?');">
+                            </form>
+                    </td>
+                    </tr>
+
+                {% if task.subcategories.all %}
+                    {% include 'task/task_tree.html' with tasks=task.subcategories.all %}
+                {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Задачи не найдены.</p>
+    {% endif %}
+
+
+
+{% endblock %}
